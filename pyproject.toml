@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "evoltrade"
+version = "0.1.0"
+description = "EVOLTRADE - Evolutionary Trading Laboratory"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.116,<1", "pydantic>=2.11,<3", "sqlalchemy>=2.0,<3", "uvicorn[standard]>=0.35,<1", "typer>=0.16,<1", "rich>=14,<15", "duckdb>=1.3,<2", "pyarrow>=25,<26", "psycopg[binary]>=3.2,<4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.4,<9", "hypothesis>=6.140,<7", "httpx>=0.28,<1", "ruff>=0.12,<1"]
+
+[project.scripts]
+evoltrade = "evltrade.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evltrade"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+[tool.ruff.lint]
+select = ["E", "F", "I"]

@@ -1,0 +1,92 @@
+repo	license	last_push	stars	archived	description
+nautechsystems/nautilus_trader	LGPL-3.0	2026-09-10	28728		Production-grade Rust-native trading engine with deterministic event-driven architecture
+mementum/backtrader	GPL-3.0	2024-08-19	23195		Python Backtesting library for trading strategies
+polakowo/vectorbt	NOASSERTION	2026-08-02	9052		The backtesting engine that gives you an unfair advantage. Run thousands of trading ideas before oth
+stefan-jansen/zipline-reloaded	Apache-2.0	2026-01-06	1936		Zipline, a Pythonic Algorithmic Trading Library
+quantopian/zipline	Apache-2.0	2024-02-13	20085		Zipline, a Pythonic Algorithmic Trading Library
+QuantConnect/Lean	Apache-2.0	2026-09-09	21566		Lean Algorithmic Trading Engine by QuantConnect (Python, C#)
+kernc/backtesting.py	AGPL-3.0	2026-08-05	8952		🔎 📈 🐍 💰  Backtest trading strategies in Python.
+polakowo/bt	ERROR	HTTP Error 404: Not Found			
+hummingbot/hummingbot	Apache-2.0	2026-09-09	19950		Open source software that helps you create and deploy high-frequency crypto trading bots
+openbb-finance/openbb	NOASSERTION	2026-07-30	72854		Open Data Platform for analysts, quants and AI agents.
+ranaroussi/quantstats	Apache-2.0	2026-07-20	7625		Portfolio analytics for quants, written in Python
+DEAP/DEAP	LGPL-3.0	2026-04-17	6436		Distributed Evolutionary Algorithms in Python
+gplearn/gplearn	ERROR	HTTP Error 404: Not Found			
+mnevo/mnevo	ERROR	HTTP Error 404: Not Found			
+robertmartin8/PyPortfolioOpt	MIT	2026-07-07	6019		Financial portfolio optimization in python, including classical efficient frontier, Black-Litterman,
+dcajasn/Riskfolio-Lib	BSD-3-Clause	2026-08-18	4491		Portfolio Optimization in Python
+cvxpy/cvxpy	Apache-2.0	2026-09-09	6330		A Python-embedded modeling language for convex optimization problems.
+ccxt/ccxt	MIT	2026-09-10	43943		A unified trading API with more than 100 crypto exchanges and prediction markets in JavaScript / Typ
+ranaroussi/yfinance	Apache-2.0	2026-08-27	25216		Download market data from Yahoo! Finance's API
+numpy/numpy	NOASSERTION	2026-09-10	32708		The fundamental package for scientific computing with Python.
+scipy/scipy	BSD-3-Clause	2026-09-10	15004		SciPy library main repository
+numba/numba	BSD-2-Clause	2026-09-09	11150		NumPy aware dynamic Python compiler using LLVM
+pola-rs/polars	MIT	2026-09-10	39699		Extremely fast Query Engine for DataFrames, written in Rust
+duckdb/duckdb	MIT	2026-09-10	41117		DuckDB is an analytical in-process SQL database management system
+pandas-dev/pandas	BSD-3-Clause	2026-09-10	49710		Flexible and powerful data analysis / manipulation library for Python, providing labeled data struct
+networkx/networkx	NOASSERTION	2026-09-09	17254		Network Analysis in Python
+hdbscan/hdbscan-ro	ERROR	HTTP Error 404: Not Found			
+scikit-learn/scikit-learn	BSD-3-Clause	2026-09-10	67221		scikit-learn: machine learning in Python
+statsmodels/statsmodels	BSD-3-Clause	2026-09-09	11618		Statsmodels: statistical modeling and econometrics in Python
+dvcorg/dvc	ERROR	HTTP Error 404: Not Found			
+mlflow/mlflow	Apache-2.0	2026-09-10	27898		The open source AI engineering platform for agents, LLMs, and ML models. MLflow enables teams of all
+ClearML/ClearML	Apache-2.0	2026-09-09	6862		ClearML - Auto-Magical CI/CD to streamline your AI workload. Experiment Management, Data Management,
+celery/celery	NOASSERTION	2026-09-10	28874		Distributed Task Queue (development branch)
+PrefectHQ/prefect	Apache-2.0	2026-09-10	23811		Prefect is a workflow orchestration framework for building resilient data pipelines in Python.
+dagster-io/dagster	Apache-2.0	2026-09-09	16134		An orchestration platform for the development, production, and observation of data assets.
+ray-project/ray	Apache-2.0	2026-09-10	43764		Ray is an AI compute engine. Ray consists of a core distributed runtime and a set of AI Libraries fo
+dask/dask	BSD-3-Clause	2026-08-24	13913		Parallel computing with task scheduling
+redis/redis	NOASSERTION	2026-09-09	76296		For developers, who are building real-time data-driven applications, Redis is the preferred, fastest
+valkey-io/valkey	BSD-3-Clause	2026-09-10	27161		A flexible distributed key-value database that is optimized for caching and other realtime workloads
+fastapi/fastapi	MIT	2026-09-01	102225		FastAPI framework, high performance, easy to learn, fast to code, ready for production
+pydantic/pydantic	MIT	2026-09-10	28754		Data validation using Python type hints
+sqlalchemy/sqlalchemy	MIT	2026-09-09	12150		The Database Toolkit for Python
+alembic/alembic	NOASSERTION	2026-07-02	1173		Alembic is an open framework for storing and sharing scene data that includes a C++ library, a file 
+psycopg/psycopg	LGPL-3.0	2026-08-31	2489		New generation PostgreSQL database adapter for the Python programming language 
+encode/uvicorn	BSD-3-Clause	2026-09-09	10954		An ASGI web server, for Python. 🦄
+encode/httpx	BSD-3-Clause	2026-03-29	15471		A next generation HTTP client for Python. 🦋
+pallets/click	BSD-3-Clause	2026-09-08	17661		Python composable command line interface toolkit
+typer-typer/typer	ERROR	HTTP Error 404: Not Found			
+Textualize/textual	MIT	2026-07-11	37187		The lean application framework for Python.  Build sophisticated user interfaces with a simple Python
+Textualize/rich	MIT	2026-06-23	57347		Rich is a Python library for rich text and beautiful formatting in the terminal.
+uvloop/uvloop	ERROR	HTTP Error 404: Not Found			
+ijl/orjson	Apache-2.0	2026-08-31	8227		Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy
+jcristharif/msgspec	ERROR	HTTP Error 404: Not Found			
+aaugustin/websockets	BSD-3-Clause	2026-08-29	5716		Library for building WebSocket servers and clients in Python
+hynek/structlog	NOASSERTION	2026-09-05	4944		Simple, powerful, and fast logging for Python.
+prometheus/client_python	Apache-2.0	2026-08-13	4370		Prometheus instrumentation library for Python applications
+open-telemetry/opentelemetry-python	Apache-2.0	2026-09-10	2628		OpenTelemetry Python API and SDK 
+hynek/argon2-cffi	MIT	2026-09-01	731		Secure Password Hashes for Python
+jpadilla/pyjwt	MIT	2026-09-10	5697		JSON Web Token implementation in Python
+pyca/cryptography	NOASSERTION	2026-09-09	7761		cryptography is a package designed to expose cryptographic primitives and recipes to Python develope
+pyyaml/pyyaml	ERROR	HTTP Error 404: Not Found			
+pallets/jinja2	BSD-3-Clause	2025-06-14	11771		A very fast and expressive template engine.
+postgres/postgres	NOASSERTION	2026-09-10	22059		Mirror of the official PostgreSQL GIT repository. Note that this is just a *mirror* - we don't work 
+apache/echarts	Apache-2.0	2026-09-10	67288		Apache ECharts is a powerful, interactive charting and data visualization library for browser
+tradingview/lightweight-charts	Apache-2.0	2026-09-10	17225		Performant financial charts built with HTML5 canvas
+vercel/next.js	MIT	2026-09-10	142216		The React Framework
+tailwindlabs/tailwindcss	MIT	2026-09-08	97488		A utility-first CSS framework for rapid UI development.
+TanStack/query	MIT	2026-09-10	50273		🤖 Powerful asynchronous state management, server-state utilities and data fetching for the web. TS/J
+TanStack/table	MIT	2026-09-10	28421		🤖 Headless UI for building powerful tables & datagrids for TS/JS -  React-Table, Vue-Table, Solid-Ta
+pmndrs/zustand	MIT	2026-09-07	58660		🐻 Bear necessities for state management in React
+shadcn-ui/ui	MIT	2026-09-10	123481		A set of beautifully-designed, accessible components and a code distribution platform. Works with yo
+pytest-dev/pytest	MIT	2026-09-08	14493		The pytest framework makes it easy to write small tests, yet scales to support complex functional te
+pytest-dev/pytest-asyncio	Apache-2.0	2026-09-09	1662		Asyncio support for pytest
+hypothesisworks/hypothesis	NOASSERTION	2026-09-08	8952		The property-based testing library for Python
+pytest-dev/pytest-benchmark	ERROR	HTTP Error 404: Not Found			
+locustio/locust	MIT	2026-09-07	28139		Write scalable load tests in plain Python 🚗💨
+tsenart/vegeta	MIT	2026-02-16	25185		HTTP load testing tool and library. It's over 9000!
+microsoft/playwright	Apache-2.0	2026-09-10	95898		Playwright is a framework for Web Testing and Automation. It allows testing Chromium, Firefox and We
+vitest-dev/vitest	MIT	2026-09-10	17081		Next generation testing framework powered by Vite.
+testing-library/react-testing-library	MIT	2026-08-27	19649		🐐 Simple and complete React DOM testing utilities that encourage good testing practices.
+unionai-oss/pandera	MIT	2026-09-09	4452		A light-weight, flexible, and expressive statistical data testing library
+great-expectations/great_expectations	Apache-2.0	2026-09-10	11778		Always know what to expect from your data.
+TA-Lib/ta-lib	BSD-3-Clause	2026-09-09	1671		Official TA-Lib Core
+twopirllc/pandas-ta	ERROR	HTTP Error 404: Not Found			
+weasyprint/weasyprint	BSD-3-Clause	2023-04-02	1	archived	Non-official Docker images for WeasyPrint, a powerful tool for rendering HTML and CSS to PDF documen
+grafana/grafana	AGPL-3.0	2026-09-10	76668		The open and composable observability and data visualization platform. Visualize metrics, logs, and 
+man-group/ArcticDB	NOASSERTION	2026-09-10	2509		ArcticDB is a high performance, serverless DataFrame database built for the Python Data Science ecos
+edtechre/pybroker	NOASSERTION	2026-09-07	3537		Algorithmic Trading in Python with Machine Learning
+freqtrade/freqtrade	GPL-3.0	2026-09-10	54217		Free, open source crypto trading bot
+abides-sim/abides	NOASSERTION	2023-07-06	565		ABIDES: Agent-Based Interactive Discrete Event Simulation
+LeonardoBerti00/DeepMarket	MIT	2026-01-27	108		DeepMarket is a framework for performing Limit Order Book simulation with Deep Learning. This is als

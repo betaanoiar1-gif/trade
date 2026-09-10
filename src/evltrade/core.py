@@ -6,13 +6,14 @@ from enum import Enum
 from hashlib import sha256
 from typing import Any, Iterable, Protocol
 import heapq, json, random, uuid
-getcontext().prec = 28
+getcontext().prec=28
 ZERO=Decimal("0"); CENT=Decimal("0.01")
 def D(v): return Decimal(str(v))
 class Side(str,Enum): BUY="buy"; SELL="sell"
 class OrderType(str,Enum): MARKET="market"; LIMIT="limit"; STOP="stop"; STOP_LIMIT="stop_limit"
 class TimeInForce(str,Enum): IOC="ioc"; FOK="fok"; GTC="gtc"; GTD="gtd"
-class EventType(str,Enum): MARKET="market"; ORDER_INTENT="order_intent"; ORDER_ACCEPTED="order_accepted"; ORDER_REJECTED="order_rejected"; ORDER_PARTIALLY_FILLED="order_partially_filled"; ORDER_FILLED="order_filled"
+class EventType(str,Enum):
+ MARKET="market"; QUOTE="quote"; TRADE="trade"; ORDER_BOOK="order_book"; TIMER="timer"; SIGNAL="signal"; ORDER_INTENT="order_intent"; ORDER_ACCEPTED="order_accepted"; ORDER_REJECTED="order_rejected"; ORDER_CANCELLED="order_cancelled"; ORDER_PARTIALLY_FILLED="order_partially_filled"; ORDER_FILLED="order_filled"; FEE="fee"; FUNDING="funding"; POSITION="position"; MARGIN="margin"; LIQUIDATION="liquidation"; PORTFOLIO="portfolio"
 @dataclass(frozen=True)
 class Instrument:
  symbol:str; quote:str="USD"; tick_size:Decimal=D("0.01"); quantity_step:Decimal=D("0.000001"); min_quantity:Decimal=D("0.000001"); min_notional:Decimal=D("1")
@@ -21,11 +22,13 @@ class MarketTick:
  ts:datetime; instrument:Instrument; bid:Decimal; ask:Decimal; last:Decimal; bid_size:Decimal; ask_size:Decimal; trade_size:Decimal=ZERO
 @dataclass(frozen=True)
 class OrderIntent:
- strategy_id:str; instrument:Instrument; side:Side; quantity:Decimal; order_type:OrderType=OrderType.MARKET; limit_price:Decimal|None=None; stop_price:Decimal|None=None; time_in_force:TimeInForce=TimeInForce.GTC; reduce_only:bool=False; post_only:bool=False
+ strategy_id:str; instrument:Instrument; side:Side; quantity:Decimal; order_type:OrderType=OrderType.MARKET; limit_price:Decimal|None=None; stop_price:Decimal|None=None; time_in_force:TimeInForce=TimeInForce.GTC; reduce_only:bool=False; post_only:bool=False; expires_at:datetime|None=None
 @dataclass
 class Order:
  id:str; intent:OrderIntent; created_at:datetime; status:str="new"; remaining:Decimal=field(init=False)
- def __post_init__(self): self.remaining=self.intent.quantity
+ def __post_init__(self):
+  if self.intent.quantity<=ZERO: raise ValueError("order quantity must be positive")
+  self.remaining=self.intent.quantity
 @dataclass(frozen=True)
 class Fill:
  order_id:str; ts:datetime; price:Decimal; quantity:Decimal; liquidity:str
@@ -36,6 +39,7 @@ class EventLog:
  def __init__(self): self._events=[]; self._sequence=0
  def append(self,ts,type_,payload): self._sequence+=1; e=Event(ts,type_,payload,self._sequence); self._events.append(e); return e
  def __iter__(self): return iter(self._events)
+ def __len__(self): return len(self._events)
  def digest(self): return sha256("\n".join(json.dumps({"ts":e.ts.isoformat(),"type":e.type.value,"payload":e.payload,"sequence":e.sequence},sort_keys=True,default=str) for e in self._events).encode()).hexdigest()
 class FeeModel(Protocol):
  def fee(self,price:Decimal,quantity:Decimal,liquidity:str)->Decimal: ...
@@ -52,24 +56,33 @@ class OrderBook:
  def __init__(self): self.bids=[]; self.asks=[]; self._seq=0
  def add(self,order,price):
   self._seq+=1; row=(price,self._seq,order.id,order.remaining)
-  heapq.heappush(self.bids,(-price,self._seq,order.id,order.remaining)) if order.intent.side==Side.BUY else heapq.heappush(self.asks,row)
+  if order.intent.side==Side.BUY: heapq.heappush(self.bids,(-price,self._seq,order.id,order.remaining))
+  else: heapq.heappush(self.asks,row)
  def best_bid(self): return -self.bids[0][0] if self.bids else None
  def best_ask(self): return self.asks[0][0] if self.asks else None
 class MatchingEngine:
  def __init__(self,fees=None,slippage=None): self.fees=fees or PercentageFee(); self.slippage=slippage or SlippageModel()
  def execute(self,order,tick):
-  if order.remaining<=ZERO:return []
-  if order.intent.order_type==OrderType.LIMIT:
+  if order.remaining<=ZERO or order.intent.expires_at and tick.ts>order.intent.expires_at:return []
+  if order.intent.order_type in (OrderType.LIMIT,OrderType.STOP_LIMIT):
    lp=order.intent.limit_price
    if lp is None or (order.intent.side==Side.BUY and lp<tick.ask) or (order.intent.side==Side.SELL and lp>tick.bid): return []
+  if order.intent.post_only and order.intent.order_type==OrderType.MARKET:return []
   px=tick.ask if order.intent.side==Side.BUY else tick.bid; avail=tick.ask_size if order.intent.side==Side.BUY else tick.bid_size; qty=min(order.remaining,avail)
   if qty<=ZERO:return []
   return [Fill(order.id,tick.ts,self.slippage.apply(px,order.intent.side),qty,"taker" if order.intent.order_type==OrderType.MARKET else "maker")]
 @dataclass
 class Ledger:
- cash:Decimal=D("1000"); reserved_cash:Decimal=ZERO; realized_pnl:Decimal=ZERO; fees:Decimal=ZERO; entries:list=field(default_factory=list)
+ cash:Decimal=D("1000"); reserved_cash:Decimal=ZERO; realized_pnl:Decimal=ZERO; fees:Decimal=ZERO; funding:Decimal=ZERO; entries:list=field(default_factory=list)
  def record_trade(self,side,price,qty,fee):
-  gross=price*qty; self.cash += -gross if side==Side.BUY else gross; self.cash-=fee; self.fees+=fee; self.entries.append({"type":"trade","side":side.value,"gross":gross,"fee":fee})
+  gross=price*qty; self.cash+=-gross if side==Side.BUY else gross; self.cash-=fee; self.fees+=fee; self.entries.append({"type":"trade","side":side.value,"gross":gross,"fee":fee})
+ def reserve(self,amount):
+  amount=D(amount)
+  if amount<ZERO or self.reserved_cash+amount>self.cash:return False
+  self.reserved_cash+=amount; return True
+ def release(self,amount): self.reserved_cash=max(ZERO,self.reserved_cash-D(amount))
+ @property
+ def available_cash(self): return self.cash-self.reserved_cash
 @dataclass
 class Position:
  quantity:Decimal=ZERO; avg_price:Decimal=ZERO; realized_pnl:Decimal=ZERO
@@ -134,17 +147,22 @@ class ExperimentSpec:
 class ExperimentResult:
  spec:ExperimentSpec; equity:Decimal; return_pct:Decimal; max_drawdown:Decimal; trades:int; fees:Decimal; event_digest:str
 class Simulator:
- def __init__(self,capital=D("1000"),risk=None,matching=None): self.portfolio=Portfolio(ledger=Ledger(cash=capital),equity=capital,peak_equity=capital); self.risk=risk or RiskEngine(); self.matching=matching or MatchingEngine(); self.events=EventLog(); self.order_seq=0
+ def __init__(self,capital=D("1000"),risk=None,matching=None):
+  self.starting_capital=D(capital); self.portfolio=Portfolio(ledger=Ledger(cash=self.starting_capital),equity=self.starting_capital,peak_equity=self.starting_capital); self.risk=risk or RiskEngine(); self.matching=matching or MatchingEngine(); self.events=EventLog(); self.order_seq=0
  def run(self,strategy,ticks:list[MarketTick]):
   strategy.on_start(); trades=0
-  dataset_id=sha256("\n".join(t.ts.isoformat() for t in ticks).encode()).hexdigest()
+  dataset_id=sha256("\n".join(f"{t.ts.isoformat()}|{t.last}" for t in ticks).encode()).hexdigest()
   for tick in ticks:
    self.events.append(tick.ts,EventType.MARKET,{"symbol":tick.instrument.symbol,"bid":str(tick.bid),"ask":str(tick.ask),"last":str(tick.last)})
    intent=strategy.on_market_data(tick)
    if intent is None: continue
    approved,reason=self.risk.approve(intent,tick.last,self.portfolio); self.events.append(tick.ts,EventType.ORDER_INTENT,{"strategy":intent.strategy_id,"reason":reason})
-   if not approved:self.events.append(tick.ts,EventType.ORDER_REJECTED,{"reason":reason});continue
+   if not approved:self.events.append(tick.ts,EventType.ORDER_REJECTED,{"reason":reason}); continue
    self.order_seq+=1; order=Order(f"O{self.order_seq:08d}",intent,tick.ts); self.events.append(tick.ts,EventType.ORDER_ACCEPTED,{"order_id":order.id,"qty":str(intent.quantity)})
    for fill in self.matching.execute(order,tick):
-    order.remaining-=fill.quantity; self.portfolio.apply_fill(fill,intent,self.matching.fees); trades+=1; self.events.append(fill.ts,EventType.ORDER_FILLED if order.remaining==ZERO else EventType.ORDER_PARTIALLY_FILLED,{"order_id":fill.order_id,"price":str(fill.price),"qty":str(fill.quantity)}); strategy.on_fill(fill)
-  strategy.on_stop(); digest=self.events.digest(); spec=ExperimentSpec(f"EVL-{digest[:8].upper()}",dataset_id[:12],strategy.strategy_id,"", "0.1.0",42); return ExperimentResult(spec,self.portfolio.equity,(self.portfolio.equity-D("1000"))/D("1000"),self.portfolio.drawdown,trades,self.portfolio.ledger.fees,digest)
+    if fill.quantity>order.remaining: raise RuntimeError("fill exceeds remaining order quantity")
+    order.remaining-=fill.quantity; self.portfolio.apply_fill(fill,intent,self.matching.fees); trades+=1
+    self.events.append(fill.ts,EventType.ORDER_FILLED if order.remaining==ZERO else EventType.ORDER_PARTIALLY_FILLED,{"order_id":fill.order_id,"price":str(fill.price),"qty":str(fill.quantity)}); strategy.on_fill(fill)
+  strategy.on_stop(); digest=self.events.digest(); final_return=(self.portfolio.equity-self.starting_capital)/self.starting_capital if self.starting_capital else ZERO
+  spec=ExperimentSpec(f"EVL-{digest[:8].upper()}",dataset_id[:12],strategy.strategy_id,"","0.2.0",42,self.starting_capital)
+  return ExperimentResult(spec,self.portfolio.equity,final_return,self.portfolio.drawdown,trades,self.portfolio.ledger.fees,digest)

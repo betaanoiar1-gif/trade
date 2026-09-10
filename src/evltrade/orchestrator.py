@@ -1,6 +1,6 @@
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, Future
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from hashlib import sha256
 import json, threading, time
 
@@ -16,14 +16,18 @@ class CheckpointStore:
         with self.lock:return self.data.get(key)
 
 class ExperimentCoordinator:
-    def __init__(self,workers:int=1): self.pool=ThreadPoolExecutor(max_workers=max(1,workers)); self.jobs={}; self.checkpoints=CheckpointStore(); self.lock=threading.Lock()
+    def __init__(self,workers:int=1): self.pool=ThreadPoolExecutor(max_workers=max(1,workers)); self.jobs={}; self.futures={}; self.checkpoints=CheckpointStore(); self.lock=threading.Lock()
     @staticmethod
     def deterministic_id(spec:dict)->str:
         canonical=json.dumps(spec,sort_keys=True,default=str,separators=(",",":")); return "EVL-"+sha256(canonical.encode()).hexdigest()[:8].upper()
     def submit(self,fn,*args,**kwargs)->str:
-        job_id=self.deterministic_id({"fn":getattr(fn,"__name__","job"),"args":args,"kwargs":kwargs,"ns":time.time_ns()}); state=JobState(job_id,"running",0.0,started_at=time.time()); self.jobs[job_id]=state
-        fut=self.pool.submit(fn,*args,**kwargs); fut.add_done_callback(lambda f:self._done(job_id,f)); return job_id
+        job_id=self.deterministic_id({"fn":getattr(fn,"__name__","job"),"args":args,"kwargs":kwargs,"submitted":time.time_ns()}); self.jobs[job_id]=JobState(job_id,"running",0.0,started_at=time.time()); fut=self.pool.submit(fn,*args,**kwargs); self.futures[job_id]=fut; fut.add_done_callback(lambda f:self._done(job_id,f)); return job_id
     def _done(self,job_id,f:Future):
         s=self.jobs[job_id]; s.finished_at=time.time(); s.status="failed" if f.exception() else "completed"; s.error=str(f.exception()) if f.exception() else None; s.result=None if f.exception() else f.result(); s.progress=1.0
     def status(self,job_id): return self.jobs.get(job_id)
-    def cancel(self,job_id): return self.jobs[job_id].status=="cancelled" if job_id not in self.jobs else False
+    def cancel(self,job_id):
+        if job_id not in self.jobs:return False
+        ok=self.futures[job_id].cancel()
+        if ok:self.jobs[job_id].status="cancelled"; self.jobs[job_id].finished_at=time.time()
+        return ok
+    def shutdown(self): self.pool.shutdown(wait=False,cancel_futures=True)

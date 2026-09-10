@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: evoltrade
+      POSTGRES_USER: evoltrade
+      POSTGRES_PASSWORD: evoltrade
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://evoltrade:evoltrade@postgres:5432/evoltrade
+      EVLTRADE_LIVE_TRADING: "false"
+    ports: ["8000:8000"]
+    depends_on: [postgres]
+volumes:
+  pgdata:
